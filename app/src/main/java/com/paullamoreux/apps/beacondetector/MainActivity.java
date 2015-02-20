@@ -14,17 +14,22 @@ import org.altbeacon.beacon.BeaconManager;
 import org.altbeacon.beacon.MonitorNotifier;
 import org.altbeacon.beacon.Region;
 
+import java.util.ArrayList;
+
 
 public class MainActivity extends ActionBarActivity implements BeaconConsumer {
     protected static final String TAG = "RangingActivity";
 
     private BeaconManager beaconManager;
     private TextView tvDebug;
+    private ArrayList<String> messages;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        messages = new ArrayList<String>();
 
         tvDebug = (TextView) findViewById(R.id.tvDebug);
 
@@ -49,6 +54,7 @@ public class MainActivity extends ActionBarActivity implements BeaconConsumer {
             public void didEnterRegion(Region region) {
                 str = "Saw a beacon for the first time!\n";
                 Log.i(TAG, str);
+                messages.add(str);
 //                tvDebug.setText(tvDebug.getText().toString() + str);
                 //Toast.makeText(MainActivity.this, str, Toast.LENGTH_SHORT).show();
             }
@@ -57,6 +63,7 @@ public class MainActivity extends ActionBarActivity implements BeaconConsumer {
             public void didExitRegion(Region region) {
                 str = "No longer see some beacon\n";
                 Log.i(TAG, str);
+                messages.add(str);
 //                tvDebug.setText(tvDebug.getText().toString() + str);
 //                Toast.makeText(MainActivity.this, str, Toast.LENGTH_SHORT).show();
             }
@@ -65,6 +72,7 @@ public class MainActivity extends ActionBarActivity implements BeaconConsumer {
             public void didDetermineStateForRegion(int state, Region region) {
                 str = "Just switched from seeing/not seeing beacons: " + state + "\n";
                 Log.i(TAG, str);
+                messages.add(str);
 //                tvDebug.setText(tvDebug.getText().toString() + str);
 //                Toast.makeText(MainActivity.this, str, Toast.LENGTH_SHORT).show();
             }
