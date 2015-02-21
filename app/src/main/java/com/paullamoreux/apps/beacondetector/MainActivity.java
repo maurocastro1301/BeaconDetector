@@ -6,6 +6,9 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,8 +24,10 @@ public class MainActivity extends ActionBarActivity implements BeaconConsumer {
     protected static final String TAG = "RangingActivity";
 
     private BeaconManager beaconManager;
-    private TextView tvDebug;
     private ArrayList<String> messages;
+    private ArrayAdapter<String> aMessages;
+    private ListView lvMessages;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,7 +36,9 @@ public class MainActivity extends ActionBarActivity implements BeaconConsumer {
 
         messages = new ArrayList<String>();
 
-        tvDebug = (TextView) findViewById(R.id.tvDebug);
+        lvMessages = (ListView) findViewById(R.id.lvMessages);
+        aMessages = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, messages);
+        lvMessages.setAdapter(aMessages);
 
         beaconManager = BeaconManager.getInstanceForApplication(this);
         beaconManager.bind(this);
@@ -53,8 +60,8 @@ public class MainActivity extends ActionBarActivity implements BeaconConsumer {
             @Override
             public void didEnterRegion(Region region) {
                 str = "Saw a beacon for the first time!\n";
-                Log.i(TAG, str);
                 messages.add(str);
+                Log.i(TAG, str);
 //                tvDebug.setText(tvDebug.getText().toString() + str);
                 //Toast.makeText(MainActivity.this, str, Toast.LENGTH_SHORT).show();
             }
@@ -62,8 +69,8 @@ public class MainActivity extends ActionBarActivity implements BeaconConsumer {
             @Override
             public void didExitRegion(Region region) {
                 str = "No longer see some beacon\n";
-                Log.i(TAG, str);
                 messages.add(str);
+                Log.i(TAG, str);
 //                tvDebug.setText(tvDebug.getText().toString() + str);
 //                Toast.makeText(MainActivity.this, str, Toast.LENGTH_SHORT).show();
             }
@@ -71,8 +78,8 @@ public class MainActivity extends ActionBarActivity implements BeaconConsumer {
             @Override
             public void didDetermineStateForRegion(int state, Region region) {
                 str = "Just switched from seeing/not seeing beacons: " + state + "\n";
-                Log.i(TAG, str);
                 messages.add(str);
+                Log.i(TAG, str);
 //                tvDebug.setText(tvDebug.getText().toString() + str);
 //                Toast.makeText(MainActivity.this, str, Toast.LENGTH_SHORT).show();
             }
@@ -105,5 +112,10 @@ public class MainActivity extends ActionBarActivity implements BeaconConsumer {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+
+    public void onClickRefresh (View v) {
+        aMessages.notifyDataSetChanged();
     }
 }
