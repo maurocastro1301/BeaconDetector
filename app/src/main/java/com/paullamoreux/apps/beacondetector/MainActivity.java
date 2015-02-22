@@ -8,6 +8,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -61,6 +62,7 @@ public class MainActivity extends ActionBarActivity implements BeaconConsumer {
             public void didEnterRegion(Region region) {
                 str = "Saw a beacon for the first time!\n";
                 messages.add(str);
+                logToDisplay(str);
                 Log.i(TAG, str);
 //                tvDebug.setText(tvDebug.getText().toString() + str);
                 //Toast.makeText(MainActivity.this, str, Toast.LENGTH_SHORT).show();
@@ -70,6 +72,7 @@ public class MainActivity extends ActionBarActivity implements BeaconConsumer {
             public void didExitRegion(Region region) {
                 str = "No longer see some beacon\n";
                 messages.add(str);
+                logToDisplay(str);
                 Log.i(TAG, str);
 //                tvDebug.setText(tvDebug.getText().toString() + str);
 //                Toast.makeText(MainActivity.this, str, Toast.LENGTH_SHORT).show();
@@ -79,6 +82,7 @@ public class MainActivity extends ActionBarActivity implements BeaconConsumer {
             public void didDetermineStateForRegion(int state, Region region) {
                 str = "Just switched from seeing/not seeing beacons: " + state + "\n";
                 messages.add(str);
+                logToDisplay(str);
                 Log.i(TAG, str);
 //                tvDebug.setText(tvDebug.getText().toString() + str);
 //                Toast.makeText(MainActivity.this, str, Toast.LENGTH_SHORT).show();
@@ -90,6 +94,15 @@ public class MainActivity extends ActionBarActivity implements BeaconConsumer {
         } catch (RemoteException e) {
             e.printStackTrace();
         }
+    }
+
+
+    private void logToDisplay(final String line) {
+        runOnUiThread(new Runnable() {
+            public void run() {
+                aMessages.notifyDataSetChanged();
+            }
+        });
     }
 
     @Override
