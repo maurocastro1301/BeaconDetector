@@ -6,10 +6,13 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 
 public class BeaconDetailActivity extends ActionBarActivity {
     private static final String TAG = "BeaconDetailActivity";
+
+    private TextView tvName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,6 +21,9 @@ public class BeaconDetailActivity extends ActionBarActivity {
 
         ScanResult result = (ScanResult) getIntent().getParcelableExtra("result");
         Log.i(TAG, result.toString());
+
+        tvName = (TextView) findViewById(R.id.tvName);
+        tvName.setText(result.getDevice().getAddress());
     }
 
 
@@ -43,3 +49,33 @@ public class BeaconDetailActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 }
+
+
+// If this is the first time we've seen this device, crank up a conversation
+// with it.
+
+//                    if (!gatts.containsKey(address)) {
+//                        BluetoothGatt gatt = device.connectGatt(MainActivity.this, true, new BluetoothGattCallback() {
+//                            @Override
+//                            public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
+//                                super.onConnectionStateChange(gatt, status, newState);
+//                                logToDisplay("onConnectionStateChange");
+//                            }
+//
+//                            @Override
+//                            public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
+//                                super.onCharacteristicChanged(gatt, characteristic);
+//                                logToDisplay("onCharacteristicChanged");
+//                            }
+//
+//                            @Override
+//                            public void onServicesDiscovered(BluetoothGatt gatt, int status) {
+//                                super.onServicesDiscovered(gatt, status);
+//                                logToDisplay("onCharacteristicChanged");
+//                            }
+//                        });
+//                        gatts.put(address, gatt);
+//                        logToDisplay("Got a GATT for: " + address);
+//                    }
+
+//Toast.makeText(MainActivity.this, name + ":" + address + ":" + String.valueOf(value), Toast.LENGTH_SHORT).show();

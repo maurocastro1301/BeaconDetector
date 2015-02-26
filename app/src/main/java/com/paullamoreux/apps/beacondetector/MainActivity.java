@@ -12,8 +12,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.RemoteException;
+import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -46,10 +48,70 @@ public class MainActivity extends ActionBarActivity implements BeaconConsumer {
     private ArrayList<ScanResult> results;
     private ResultAdapter aResults;
 
+
     BluetoothAdapter bleAdapter;
     BluetoothLeScanner scanner;
     HashMap<String, BluetoothGatt> gatts = new HashMap<String, BluetoothGatt>();
     HashMap<String, ScanResult> resultsByAddress = new HashMap<String, ScanResult>();
+
+
+    private ScanCallback scanCallback = new ScanCallback() {
+
+            @Override
+            public void onScanResult(int callbackType, ScanResult result) {
+
+                if (result == null) {
+                    return;
+                }
+
+                ScanRecord record = result.getScanRecord();
+                BluetoothDevice device = result.getDevice();
+                int value = result.getRssi();
+
+                String name = record.getDeviceName(); // device.getName();
+                String address = device.getAddress();
+                String message = name + ":" + address + ":" + String.valueOf(value);
+
+                if (!resultsByAddress.containsKey(address)) {
+                    resultsByAddress.put(address, result);
+                    results.add(result);
+                    logToDisplay(message);
+                }
+
+            }
+
+            @Override
+            public void onBatchScanResults(List<ScanResult> results) {
+                String message = "Got a batch scan result";
+                logToDisplay(message);
+            }
+
+            @Override
+            public void onScanFailed(int errorCode) {
+                String message = "unspecified failure";
+                switch(errorCode) {
+                    case SCAN_FAILED_ALREADY_STARTED:
+                        message = "SCAN_FAILED_ALREADY_STARTED";
+                        break;
+
+                    case SCAN_FAILED_APPLICATION_REGISTRATION_FAILED:
+                        message = "SCAN_FAILED_APPLICATION_REGISTRATION_FAILED";
+                        break;
+
+                    case SCAN_FAILED_FEATURE_UNSUPPORTED:
+                        message = "SCAN_FAILED_FEATURE_UNSUPPORTED";
+                        break;
+
+                    case SCAN_FAILED_INTERNAL_ERROR:
+                        message = "SCAN_FAILED_INTERNAL_ERROR";
+                        break;
+                }
+                logToDisplay(message);
+                //Toast.makeText(MainActivity.this, "onScanResult: " + message, Toast.LENGTH_SHORT).show();
+            }
+
+    };
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +129,7 @@ public class MainActivity extends ActionBarActivity implements BeaconConsumer {
         lvMessages.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                stopScanning();
                 ScanResult result = results.get(position);
                 goToDetailActivity(result);
             }
@@ -95,90 +158,9 @@ public class MainActivity extends ActionBarActivity implements BeaconConsumer {
         //bleAdapter = BluetoothAdapter.getDefaultAdapter();
         scanner = bleAdapter.getBluetoothLeScanner();
         if (scanner != null) {
-            Toast.makeText(this, "scanner created", Toast.LENGTH_SHORT).show();
-            scanner.startScan(new ScanCallback() {
-                @Override
-                public void onScanResult(int callbackType, ScanResult result) {
+            //Toast.makeText(this, "scanner created", Toast.LENGTH_SHORT).show();
+            startScanning();
 
-                    if (result == null) {
-                        return;
-                    }
-
-                    ScanRecord record = result.getScanRecord();
-                    BluetoothDevice device = result.getDevice();
-                    int value = result.getRssi();
-
-                    String name = record.getDeviceName(); // device.getName();
-                    String address = device.getAddress();
-                    String message = name + ":" + address + ":" + String.valueOf(value);
-
-                    if (!resultsByAddress.containsKey(address)) {
-                        resultsByAddress.put(address, result);
-                        results.add(result);
-                        logToDisplay(message);
-                    }
-
-
-                    // If this is the first time we've seen this device, crank up a conversation
-                    // with it.
-
-//                    if (!gatts.containsKey(address)) {
-//                        BluetoothGatt gatt = device.connectGatt(MainActivity.this, true, new BluetoothGattCallback() {
-//                            @Override
-//                            public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
-//                                super.onConnectionStateChange(gatt, status, newState);
-//                                logToDisplay("onConnectionStateChange");
-//                            }
-//
-//                            @Override
-//                            public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
-//                                super.onCharacteristicChanged(gatt, characteristic);
-//                                logToDisplay("onCharacteristicChanged");
-//                            }
-//
-//                            @Override
-//                            public void onServicesDiscovered(BluetoothGatt gatt, int status) {
-//                                super.onServicesDiscovered(gatt, status);
-//                                logToDisplay("onCharacteristicChanged");
-//                            }
-//                        });
-//                        gatts.put(address, gatt);
-//                        logToDisplay("Got a GATT for: " + address);
-//                    }
-
-                    //Toast.makeText(MainActivity.this, name + ":" + address + ":" + String.valueOf(value), Toast.LENGTH_SHORT).show();
-                }
-
-                @Override
-                public void onBatchScanResults(List<ScanResult> results) {
-                    String message = "Got a batch scan result";
-                    logToDisplay(message);
-                }
-
-                @Override
-                public void onScanFailed(int errorCode) {
-                    String message = "unspecified failure";
-                    switch(errorCode) {
-                        case SCAN_FAILED_ALREADY_STARTED:
-                            message = "SCAN_FAILED_ALREADY_STARTED";
-                            break;
-
-                        case SCAN_FAILED_APPLICATION_REGISTRATION_FAILED:
-                            message = "SCAN_FAILED_APPLICATION_REGISTRATION_FAILED";
-                            break;
-
-                        case SCAN_FAILED_FEATURE_UNSUPPORTED:
-                            message = "SCAN_FAILED_FEATURE_UNSUPPORTED";
-                            break;
-
-                        case SCAN_FAILED_INTERNAL_ERROR:
-                            message = "SCAN_FAILED_INTERNAL_ERROR";
-                            break;
-                    }
-                    logToDisplay(message);
-                    //Toast.makeText(MainActivity.this, "onScanResult: " + message, Toast.LENGTH_SHORT).show();
-                }
-            });
         }
     }
 
@@ -201,7 +183,7 @@ public class MainActivity extends ActionBarActivity implements BeaconConsumer {
             beaconManager.unbind(this);
         }
         if (scanner != null) {
-            //scanner.stopScan();
+            scanner.stopScan(scanCallback);
         }
     }
 
@@ -285,5 +267,20 @@ public class MainActivity extends ActionBarActivity implements BeaconConsumer {
 
     public void onClickRefresh (View v) {
         aMessages.notifyDataSetChanged();
+    }
+
+
+    private void stopScanning() {
+        if (scanner != null) {
+            scanner.stopScan(scanCallback);
+            Toast.makeText(this, "Scanning Stopped", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void startScanning() {
+        if (scanner != null) {
+            scanner.startScan(scanCallback);
+            Toast.makeText(this, "Scanning Started", Toast.LENGTH_SHORT).show();
+        }
     }
 }
