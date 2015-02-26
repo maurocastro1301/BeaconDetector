@@ -1,17 +1,23 @@
 package com.paullamoreux.apps.beacondetector;
 
+import android.bluetooth.le.ScanResult;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
 
 public class BeaconDetailActivity extends ActionBarActivity {
+    private static final String TAG = "BeaconDetailActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_beacon_detail);
+
+        ScanResult result = (ScanResult) getIntent().getParcelableExtra("result");
+        Log.i(TAG, result.toString());
     }
 
 

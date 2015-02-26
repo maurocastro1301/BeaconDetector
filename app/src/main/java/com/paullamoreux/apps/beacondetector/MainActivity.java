@@ -3,8 +3,6 @@ package com.paullamoreux.apps.beacondetector;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
-import android.bluetooth.BluetoothGattCallback;
-import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
@@ -45,6 +43,9 @@ public class MainActivity extends ActionBarActivity implements BeaconConsumer {
     private ArrayAdapter<String> aMessages;
     private ListView lvMessages;
 
+    private ArrayList<ScanResult> results;
+    private ResultAdapter aResults;
+
     BluetoothAdapter bleAdapter;
     BluetoothLeScanner scanner;
     HashMap<String, BluetoothGatt> gatts = new HashMap<String, BluetoothGatt>();
@@ -56,15 +57,18 @@ public class MainActivity extends ActionBarActivity implements BeaconConsumer {
         setContentView(R.layout.activity_main);
 
         messages = new ArrayList<String>();
+        results = new ArrayList<ScanResult>();
 
         lvMessages = (ListView) findViewById(R.id.lvMessages);
         aMessages = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, messages);
-        lvMessages.setAdapter(aMessages);
+        aResults = new ResultAdapter(this, results);
+        lvMessages.setAdapter(aResults);
 
         lvMessages.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                goToDetailActivity();
+                ScanResult result = results.get(position);
+                goToDetailActivity(result);
             }
         });
 
@@ -96,6 +100,9 @@ public class MainActivity extends ActionBarActivity implements BeaconConsumer {
                 @Override
                 public void onScanResult(int callbackType, ScanResult result) {
 
+                    if (result == null) {
+                        return;
+                    }
 
                     ScanRecord record = result.getScanRecord();
                     BluetoothDevice device = result.getDevice();
@@ -107,6 +114,7 @@ public class MainActivity extends ActionBarActivity implements BeaconConsumer {
 
                     if (!resultsByAddress.containsKey(address)) {
                         resultsByAddress.put(address, result);
+                        results.add(result);
                         logToDisplay(message);
                     }
 
@@ -175,9 +183,14 @@ public class MainActivity extends ActionBarActivity implements BeaconConsumer {
     }
 
 
-    private void goToDetailActivity() {
+    private void goToDetailActivity(ScanResult result) {
+//        Intent i = new Intent(this, BeaconDetailActivity.class);
+//        startActivity(i);
+
+        //ScanResult dataToSend = new MyParcelable();
         Intent i = new Intent(this, BeaconDetailActivity.class);
-        startActivity(i);
+        i.putExtra("result", result); // using the (String name, Parcelable value) overload!
+        startActivity(i); // dataToSend is now passed to the new Activity
     }
 
 
@@ -242,6 +255,7 @@ public class MainActivity extends ActionBarActivity implements BeaconConsumer {
             public void run() {
                 messages.add(line);
                 aMessages.notifyDataSetChanged();
+                aResults.notifyDataSetChanged();
             }
         });
     }
