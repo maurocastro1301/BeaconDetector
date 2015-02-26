@@ -20,6 +20,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -59,6 +60,13 @@ public class MainActivity extends ActionBarActivity implements BeaconConsumer {
         lvMessages = (ListView) findViewById(R.id.lvMessages);
         aMessages = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, messages);
         lvMessages.setAdapter(aMessages);
+
+        lvMessages.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                goToDetailActivity();
+            }
+        });
 
         if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
             Toast.makeText(this, "BLE Not Supported", Toast.LENGTH_LONG).show();
@@ -167,7 +175,10 @@ public class MainActivity extends ActionBarActivity implements BeaconConsumer {
     }
 
 
-
+    private void goToDetailActivity() {
+        Intent i = new Intent(this, BeaconDetailActivity.class);
+        startActivity(i);
+    }
 
 
     @Override
