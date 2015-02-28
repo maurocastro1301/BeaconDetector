@@ -1,5 +1,9 @@
 package com.paullamoreux.apps.beacondetector;
 
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGatt;
+import android.bluetooth.BluetoothGattCallback;
+import android.bluetooth.BluetoothGattService;
 import android.bluetooth.le.ScanResult;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -7,6 +11,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
+
+import java.util.List;
 
 
 public class BeaconDetailActivity extends ActionBarActivity {
@@ -24,6 +30,20 @@ public class BeaconDetailActivity extends ActionBarActivity {
 
         tvName = (TextView) findViewById(R.id.tvName);
         tvName.setText(result.getDevice().getAddress());
+
+        BluetoothGatt gatt;
+        BluetoothDevice device = result.getDevice();
+        if (device != null ) {
+            gatt = device.connectGatt(this, true, new BluetoothGattCallback() {
+                @Override
+                public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
+                    super.onConnectionStateChange(gatt, status, newState);
+                    Log.i(TAG, "onConnectionStateChange");
+                    List<BluetoothGattService> gatts = gatt.getServices();
+                    Log.i(TAG, "got services");
+                }
+            });
+        }
     }
 
 
