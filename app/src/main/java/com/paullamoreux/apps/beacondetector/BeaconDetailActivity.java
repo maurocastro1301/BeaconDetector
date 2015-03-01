@@ -3,6 +3,8 @@ package com.paullamoreux.apps.beacondetector;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
+import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.le.ScanResult;
 import android.support.v7.app.ActionBarActivity;
@@ -15,10 +17,57 @@ import android.widget.TextView;
 import java.util.List;
 
 
+// where to put?
+//  bluetoothGatt.disconnect();
+//  bluetoothGatt.close();
+
+
+
 public class BeaconDetailActivity extends ActionBarActivity {
     private static final String TAG = "BeaconDetailActivity";
 
     private TextView tvName;
+
+    private final BluetoothGattCallback btleGattCallback = new BluetoothGattCallback() {
+
+        @Override
+        public void onCharacteristicChanged(BluetoothGatt gatt, final BluetoothGattCharacteristic characteristic) {
+            // this will get called anytime you perform a read or write characteristic operation
+
+        }
+
+        @Override
+        public void onConnectionStateChange(final BluetoothGatt gatt, final int status, final int newState) {
+            // this will get called when a device connects or disconnects
+            if (status == BluetoothGatt.GATT_SUCCESS) {
+                if (newState == BluetoothGatt.STATE_CONNECTED) {
+                    gatt.discoverServices();
+                }
+            }
+
+        }
+
+        @Override
+        public void onServicesDiscovered(final BluetoothGatt gatt, final int status) {
+            // this will get called after the client initiates a            BluetoothGatt.discoverServices() call
+            Log.i(TAG, "onServicesDiscovered");
+            List<BluetoothGattService> services = gatt.getServices();
+            for (BluetoothGattService service : services) {
+                Log.i(TAG, service.toString());
+                List<BluetoothGattCharacteristic> characteristics = service.getCharacteristics();
+                for (BluetoothGattCharacteristic characteristic : characteristics) {
+                    Log.i(TAG, characteristic.toString());
+//                for (BluetoothGattDescriptor descriptor : characteristic.getDescriptors()) {
+//                    //find descriptor UUID that matches Client Characteristic Configuration (0x2902)
+//                    // and then call setValue on that descriptor
+//
+//                    descriptor.setValue( BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+//                    bluetoothGatt.writeDescriptor(descriptor);
+//                }
+                }
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,15 +83,7 @@ public class BeaconDetailActivity extends ActionBarActivity {
         BluetoothGatt gatt;
         BluetoothDevice device = result.getDevice();
         if (device != null ) {
-            gatt = device.connectGatt(this, true, new BluetoothGattCallback() {
-                @Override
-                public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
-                    Log.i(TAG, "onConnectionStateChange");
-                    List<BluetoothGattService> gatts = gatt.getServices();
-                    Log.i(TAG, "got services");
-                    super.onConnectionStateChange(gatt, status, newState);
-                }
-            });
+            gatt = device.connectGatt(this, true, btleGattCallback);
         }
     }
 
@@ -53,6 +94,7 @@ public class BeaconDetailActivity extends ActionBarActivity {
         getMenuInflater().inflate(R.menu.menu_beacon_detail, menu);
         return true;
     }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
