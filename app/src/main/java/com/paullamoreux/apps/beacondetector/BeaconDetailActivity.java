@@ -37,10 +37,10 @@ public class BeaconDetailActivity extends ActionBarActivity {
             gatt = device.connectGatt(this, true, new BluetoothGattCallback() {
                 @Override
                 public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
-                    super.onConnectionStateChange(gatt, status, newState);
                     Log.i(TAG, "onConnectionStateChange");
                     List<BluetoothGattService> gatts = gatt.getServices();
                     Log.i(TAG, "got services");
+                    super.onConnectionStateChange(gatt, status, newState);
                 }
             });
         }
