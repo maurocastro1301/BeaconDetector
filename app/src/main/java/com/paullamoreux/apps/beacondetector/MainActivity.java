@@ -17,6 +17,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -65,6 +66,12 @@ public class MainActivity extends ActionBarActivity implements BeaconConsumer {
                 }
 
                 ScanRecord record = result.getScanRecord();
+
+                SparseArray<byte[]> bytes =  record.getManufacturerSpecificData();
+                String s = record.toString();
+
+                // need to parse the AltBeacon advertisement here!
+
                 BluetoothDevice device = result.getDevice();
                 int value = result.getRssi();
 
@@ -162,6 +169,19 @@ public class MainActivity extends ActionBarActivity implements BeaconConsumer {
             startScanning();
 
         }
+    }
+
+
+    public static String byteArrayToHex(SparseArray<byte[]> a) {
+        // not working!
+        StringBuilder sb = new StringBuilder(a.size() * 2);
+        //for(byte b: a)
+
+        for (int i = 0; i < a.size(); i++) {
+            byte[] b = a.get(i);
+            //sb.append(String.format("%02x", b & 0xff));
+        }
+        return sb.toString();
     }
 
 
