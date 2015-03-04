@@ -37,7 +37,7 @@ import java.util.List;
 
 
 public class MainActivity extends ActionBarActivity implements BeaconConsumer {
-    private static final String TAG = "BeaconDetectorMainActivity";
+    private static final String TAG = "BeaconDetectorMain";
     private final static int REQUEST_ENABLE_BT = 1;
 
     private BluetoothManager bluetoothManager;

@@ -1,19 +1,29 @@
 package com.paullamoreux.apps.beacondetector;
 
+import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
+import android.bluetooth.BluetoothManager;
+import android.bluetooth.le.BluetoothLeScanner;
+import android.bluetooth.le.ScanCallback;
+import android.bluetooth.le.ScanFilter;
+import android.bluetooth.le.ScanRecord;
 import android.bluetooth.le.ScanResult;
+import android.bluetooth.le.ScanSettings;
+import android.content.Context;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -27,6 +37,75 @@ public class BeaconDetailActivity extends ActionBarActivity {
     private static final String TAG = "BeaconDetailActivity";
 
     private TextView tvName;
+    private TextView tvUUID;
+    private BluetoothManager bluetoothManager;
+    BluetoothAdapter bleAdapter;
+    private BluetoothLeScanner scanner;
+
+    private int numAds = 0;
+
+
+    private ScanCallback scanCallback = new ScanCallback() {
+
+        @Override
+        public void onScanResult(int callbackType, ScanResult result) {
+
+            if (result == null) {
+                return;
+            }
+
+            numAds++;
+            tvUUID.setText(String.valueOf(numAds));
+
+            ScanRecord record = result.getScanRecord();
+
+            SparseArray<byte[]> bytes =  record.getManufacturerSpecificData();
+            String s = record.toString();
+
+            // need to parse the AltBeacon advertisement here!
+
+            BluetoothDevice device = result.getDevice();
+            int value = result.getRssi();
+
+            String name = record.getDeviceName(); // device.getName();
+            String address = device.getAddress();
+            String message = name + ":" + address + ":" + String.valueOf(value);
+
+
+        }
+
+        @Override
+        public void onBatchScanResults(List<ScanResult> results) {
+            String message = "Got a batch scan result";
+        }
+
+        @Override
+        public void onScanFailed(int errorCode) {
+            String message = "unspecified failure";
+            switch(errorCode) {
+                case SCAN_FAILED_ALREADY_STARTED:
+                    message = "SCAN_FAILED_ALREADY_STARTED";
+                    break;
+
+                case SCAN_FAILED_APPLICATION_REGISTRATION_FAILED:
+                    message = "SCAN_FAILED_APPLICATION_REGISTRATION_FAILED";
+                    break;
+
+                case SCAN_FAILED_FEATURE_UNSUPPORTED:
+                    message = "SCAN_FAILED_FEATURE_UNSUPPORTED";
+                    break;
+
+                case SCAN_FAILED_INTERNAL_ERROR:
+                    message = "SCAN_FAILED_INTERNAL_ERROR";
+                    break;
+            }
+            Log.i(TAG, message);
+        }
+
+    };
+
+
+
 
     private final BluetoothGattCallback btleGattCallback = new BluetoothGattCallback() {
 
@@ -80,11 +159,27 @@ public class BeaconDetailActivity extends ActionBarActivity {
         tvName = (TextView) findViewById(R.id.tvName);
         tvName.setText(result.getDevice().getAddress());
 
-        BluetoothGatt gatt;
-        BluetoothDevice device = result.getDevice();
-        if (device != null ) {
-            gatt = device.connectGatt(this, true, btleGattCallback);
+        tvUUID = (TextView) findViewById(R.id.tvUUID);
+
+        // Initializes Bluetooth adapter.
+        bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+        bleAdapter = bluetoothManager.getAdapter();
+
+        scanner = bleAdapter.getBluetoothLeScanner();
+        if (scanner != null) {
+            ScanFilter filter = new ScanFilter.Builder().setDeviceAddress(result.getDevice().getAddress()).build();
+            ArrayList<ScanFilter> filters = new ArrayList<ScanFilter>();
+            filters.add(filter);
+            ScanSettings settings = new ScanSettings.Builder().setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY).build();
+            scanner.startScan(filters, settings, scanCallback);
         }
+
+
+//        BluetoothGatt gatt;
+//        BluetoothDevice device = result.getDevice();
+//        if (device != null ) {
+//            gatt = device.connectGatt(this, true, btleGattCallback);
+//        }
     }
 
 
