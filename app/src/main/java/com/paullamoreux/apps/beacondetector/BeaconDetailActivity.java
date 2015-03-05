@@ -39,10 +39,20 @@ public class BeaconDetailActivity extends ActionBarActivity {
     private TextView tvName;
     private TextView tvUUID;
     private BluetoothManager bluetoothManager;
-    BluetoothAdapter bleAdapter;
+    private BluetoothAdapter bleAdapter;
     private BluetoothLeScanner scanner;
 
     private int numAds = 0;
+
+
+    private void logToDisplay(final String txt) {
+        runOnUiThread(new Runnable() {
+            public void run() {
+                tvUUID.setText(txt);
+            }
+        });
+    }
+
 
 
     private ScanCallback scanCallback = new ScanCallback() {
@@ -55,22 +65,21 @@ public class BeaconDetailActivity extends ActionBarActivity {
             }
 
             numAds++;
-            tvUUID.setText(String.valueOf(numAds));
-
-            ScanRecord record = result.getScanRecord();
-
-            SparseArray<byte[]> bytes =  record.getManufacturerSpecificData();
-            String s = record.toString();
-
-            // need to parse the AltBeacon advertisement here!
-
-            BluetoothDevice device = result.getDevice();
-            int value = result.getRssi();
-
-            String name = record.getDeviceName(); // device.getName();
-            String address = device.getAddress();
-            String message = name + ":" + address + ":" + String.valueOf(value);
-
+            logToDisplay(String.valueOf(numAds));
+//
+//            ScanRecord record = result.getScanRecord();
+//
+//            SparseArray<byte[]> bytes =  record.getManufacturerSpecificData();
+//            String s = record.toString();
+//
+//            // need to parse the AltBeacon advertisement here!
+//
+//            BluetoothDevice device = result.getDevice();
+//            int value = result.getRssi();
+//
+//            String name = record.getDeviceName(); // device.getName();
+//            String address = device.getAddress();
+//            String message = name + ":" + address + ":" + String.valueOf(value);
 
         }
 
@@ -170,8 +179,12 @@ public class BeaconDetailActivity extends ActionBarActivity {
             ScanFilter filter = new ScanFilter.Builder().setDeviceAddress(result.getDevice().getAddress()).build();
             ArrayList<ScanFilter> filters = new ArrayList<ScanFilter>();
             filters.add(filter);
-            ScanSettings settings = new ScanSettings.Builder().setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY).build();
+            ScanSettings settings = new ScanSettings.Builder()
+                    .setReportDelay(0)
+                    .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
+                    .build();
             scanner.startScan(filters, settings, scanCallback);
+//            scanner.startScan(scanCallback);
         }
 
 
@@ -182,6 +195,12 @@ public class BeaconDetailActivity extends ActionBarActivity {
 //        }
     }
 
+
+    @Override
+    protected void onDestroy() {
+        scanner.stopScan(scanCallback);
+        super.onDestroy();
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

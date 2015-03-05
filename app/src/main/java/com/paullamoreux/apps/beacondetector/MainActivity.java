@@ -79,18 +79,18 @@ public class MainActivity extends ActionBarActivity implements BeaconConsumer {
                 String address = device.getAddress();
                 String message = name + ":" + address + ":" + String.valueOf(value);
 
-                if (!resultsByAddress.containsKey(address)) {
-                    resultsByAddress.put(address, result);
+                //if (!resultsByAddress.containsKey(address)) {
+                    //resultsByAddress.put(address, result);
                     results.add(result);
                     logToDisplay(message);
-                }
+                //}
 
             }
 
             @Override
             public void onBatchScanResults(List<ScanResult> results) {
                 String message = "Got a batch scan result";
-                logToDisplay(message);
+                //logToDisplay(message);
             }
 
             @Override
@@ -113,8 +113,8 @@ public class MainActivity extends ActionBarActivity implements BeaconConsumer {
                         message = "SCAN_FAILED_INTERNAL_ERROR";
                         break;
                 }
-                logToDisplay(message);
-                //Toast.makeText(MainActivity.this, "onScanResult: " + message, Toast.LENGTH_SHORT).show();
+                //logToDisplay(message);
+                Toast.makeText(MainActivity.this, "onScanResult: " + message, Toast.LENGTH_SHORT).show();
             }
 
     };
