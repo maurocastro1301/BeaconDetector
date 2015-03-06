@@ -125,48 +125,57 @@ public class MainActivity extends ActionBarActivity implements BeaconConsumer {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        messages = new ArrayList<String>();
-        results = new ArrayList<ScanResult>();
+        TheOldWay oldway = new TheOldWay();
+        oldway.beginScanning();
 
-        lvMessages = (ListView) findViewById(R.id.lvMessages);
-        aMessages = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, messages);
-        aResults = new ResultAdapter(this, results);
-        lvMessages.setAdapter(aResults);
+        boolean bRunThisStuff = false;
 
-        lvMessages.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                stopScanning();
-                ScanResult result = results.get(position);
-                goToDetailActivity(result);
+        if (bRunThisStuff == true) {
+
+            messages = new ArrayList<String>();
+            results = new ArrayList<ScanResult>();
+
+            lvMessages = (ListView) findViewById(R.id.lvMessages);
+            aMessages = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, messages);
+            aResults = new ResultAdapter(this, results);
+            lvMessages.setAdapter(aResults);
+
+            lvMessages.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    stopScanning();
+                    ScanResult result = results.get(position);
+                    goToDetailActivity(result);
+                }
+            });
+
+            if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+                Toast.makeText(this, "BLE Not Supported", Toast.LENGTH_LONG).show();
+                return;
             }
-        });
 
-        if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-            Toast.makeText(this, "BLE Not Supported", Toast.LENGTH_LONG).show();
-            return;
-        }
+            // Initializes Bluetooth adapter.
+            bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+            bleAdapter = bluetoothManager.getAdapter();
 
-        // Initializes Bluetooth adapter.
-        bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
-        bleAdapter = bluetoothManager.getAdapter();
-
-        // Ensures Bluetooth is available on the device and it is enabled. If not,
-        // displays a dialog requesting user permission to enable Bluetooth.
-        if (bleAdapter == null || !bleAdapter.isEnabled()) {
-            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-            return;
-        }
+            // Ensures Bluetooth is available on the device and it is enabled. If not,
+            // displays a dialog requesting user permission to enable Bluetooth.
+            if (bleAdapter == null || !bleAdapter.isEnabled()) {
+                Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+                return;
+            }
 
 //        beaconManager = BeaconManager.getInstanceForApplication(this);
 //        beaconManager.bind(this);
 
-        //bleAdapter = BluetoothAdapter.getDefaultAdapter();
-        scanner = bleAdapter.getBluetoothLeScanner();
-        if (scanner != null) {
-            //Toast.makeText(this, "scanner created", Toast.LENGTH_SHORT).show();
-            startScanning();
+            //bleAdapter = BluetoothAdapter.getDefaultAdapter();
+            scanner = bleAdapter.getBluetoothLeScanner();
+            if (scanner != null) {
+                //Toast.makeText(this, "scanner created", Toast.LENGTH_SHORT).show();
+                startScanning();
+
+            }
 
         }
     }
