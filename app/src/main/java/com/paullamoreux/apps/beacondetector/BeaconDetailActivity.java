@@ -1,5 +1,6 @@
 package com.paullamoreux.apps.beacondetector;
 
+import android.annotation.TargetApi;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
@@ -32,7 +33,7 @@ import java.util.List;
 //  bluetoothGatt.close();
 
 
-
+@TargetApi(21)
 public class BeaconDetailActivity extends ActionBarActivity {
     private static final String TAG = "BeaconDetailActivity";
 
@@ -52,7 +53,6 @@ public class BeaconDetailActivity extends ActionBarActivity {
             }
         });
     }
-
 
 
     private ScanCallback scanCallback = new ScanCallback() {

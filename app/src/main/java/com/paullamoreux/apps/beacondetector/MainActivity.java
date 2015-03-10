@@ -1,5 +1,6 @@
 package com.paullamoreux.apps.beacondetector;
 
+import android.annotation.TargetApi;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
@@ -36,6 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 
 
+@TargetApi(21)
 public class MainActivity extends ActionBarActivity implements BeaconConsumer {
     private static final String TAG = "BeaconDetectorMain";
     private final static int REQUEST_ENABLE_BT = 1;
