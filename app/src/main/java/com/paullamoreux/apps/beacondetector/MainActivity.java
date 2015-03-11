@@ -81,11 +81,11 @@ public class MainActivity extends ActionBarActivity implements BeaconConsumer {
                 String address = device.getAddress();
                 String message = name + ":" + address + ":" + String.valueOf(value);
 
-                //if (!resultsByAddress.containsKey(address)) {
-                    //resultsByAddress.put(address, result);
+                if (!resultsByAddress.containsKey(address)) {
+                    resultsByAddress.put(address, result);
                     results.add(result);
                     logToDisplay(message);
-                //}
+                }
 
             }
 
@@ -127,12 +127,9 @@ public class MainActivity extends ActionBarActivity implements BeaconConsumer {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        TheOldWay oldway = new TheOldWay();
-        oldway.beginScanning();
+        boolean bLollipop = false;
 
-        boolean bRunThisStuff = false;
-
-        if (bRunThisStuff == true) {
+        if (bLollipop == true) {
 
             messages = new ArrayList<String>();
             results = new ArrayList<ScanResult>();
@@ -179,6 +176,9 @@ public class MainActivity extends ActionBarActivity implements BeaconConsumer {
 
             }
 
+        } else {
+//            TheOldWay oldway = new TheOldWay();
+//            oldway.beginScanning();
         }
     }
 

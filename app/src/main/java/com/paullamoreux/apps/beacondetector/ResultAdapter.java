@@ -34,7 +34,7 @@ public class ResultAdapter extends ArrayAdapter<ScanResult> {
         TextView tvHome = (TextView) convertView.findViewById(R.id.tvSmall);
         // Populate the data into the template view using the data object
         tvName.setText(result.getDevice().getAddress());
-        tvHome.setText(String.valueOf(result.getRssi()));
+        tvHome.setText(result.getDevice().getName());
         // Return the completed view to render on screen
 
         return convertView;
