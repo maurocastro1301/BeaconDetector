@@ -275,7 +275,7 @@ public class BeaconsGraphicalView extends View {
         int i = 0;
         int rssi;
         float xScale= (numXPoints - 1) * xStep / 11;
-        float yScale = (numYPoints - 1) * yStep / 100;
+        float yScale = (numYPoints - 1) * yStep / (100);
         float x;
         float y;
 
@@ -283,7 +283,7 @@ public class BeaconsGraphicalView extends View {
         while (it.hasNext()) {
             Map.Entry pair = (Map.Entry)it.next();
             BeaconInfo info = (BeaconInfo) pair.getValue();
-            float value = info.getAvgRssi();
+            float value = info.getAvgRssi() - 20;
             x = targetXOffset + i * xScale;
             y = targetYOffset + (value * yScale);
             //Log.i(TAG, pair.getKey() + " = " + pair.getValue());
