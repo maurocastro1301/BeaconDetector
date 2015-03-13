@@ -46,6 +46,7 @@ public class BeaconsGraphicalView extends View {
     private int animationMarker = 0;
 
     private Paint drawPaintTargets;
+    private Paint drawPaintText;
     private Paint drawPaintLines;
     private Paint drawPaintBreadcrumbs;
     private Paint drawPaintTargetsFound;
@@ -98,11 +99,11 @@ public class BeaconsGraphicalView extends View {
         @Override
         public void run() {
             // Do something here
-            animationMarker += 1;
-            if (animationMarker > numXPoints - 1) animationMarker = 0;
+            animationMarker += 5;
+            if (animationMarker > (numXPoints - 1) * xStep) animationMarker = 0;
             postInvalidate();
             // Repeat this runnable code block again every 2 seconds
-            handler.postDelayed(runnableCode, 100);
+            handler.postDelayed(runnableCode, 10);
         }
     };
 
@@ -116,12 +117,17 @@ public class BeaconsGraphicalView extends View {
         drawPaintTargets.setStrokeJoin(Paint.Join.ROUND);
         drawPaintTargets.setStrokeCap(Paint.Cap.ROUND);
 
+        drawPaintText = new Paint();
+        drawPaintText.setColor(Color.BLACK);
+        drawPaintText.setTextSize(60);
+        drawPaintText.setStyle(Paint.Style.FILL);
+
         drawPaintTargetsFound = new Paint();
         drawPaintTargetsFound.setColor(Color.BLUE);
         drawPaintTargetsFound.setAntiAlias(true);
-        drawPaintTargetsFound.setAlpha(225);
+        drawPaintTargetsFound.setAlpha(255);
         drawPaintTargetsFound.setStrokeWidth(5);
-        drawPaintTargetsFound.setStyle(Paint.Style.FILL_AND_STROKE);
+        drawPaintTargetsFound.setStyle(Paint.Style.STROKE);
         drawPaintTargetsFound.setStrokeJoin(Paint.Join.ROUND);
         drawPaintTargetsFound.setStrokeCap(Paint.Cap.ROUND);
 
@@ -134,8 +140,9 @@ public class BeaconsGraphicalView extends View {
         drawPaintLines.setStrokeCap(Paint.Cap.ROUND);
 
         drawPaintBreadcrumbs = new Paint();
-        drawPaintBreadcrumbs.setColor(Color.DKGRAY);
+        drawPaintBreadcrumbs.setColor(Color.LTGRAY);
         drawPaintBreadcrumbs.setAntiAlias(true);
+        drawPaintTargetsFound.setAlpha(64);
         drawPaintBreadcrumbs.setStrokeWidth(5);
         drawPaintBreadcrumbs.setStyle(Paint.Style.FILL_AND_STROKE);
         drawPaintBreadcrumbs.setStrokeJoin(Paint.Join.ROUND);
@@ -271,7 +278,7 @@ public class BeaconsGraphicalView extends View {
     }
 
     private void drawValues(Canvas canvas) {
-        float width = 25;
+        float width = 35;
         int i = 0;
         int rssi;
         float xScale= (numXPoints - 1) * xStep / 11;
@@ -293,6 +300,11 @@ public class BeaconsGraphicalView extends View {
             } else {
                 canvas.drawCircle(x, y, width, drawPaintBreadcrumbs);
             }
+            canvas.translate(x, y);
+            canvas.rotate(-90.0f);
+            canvas.drawText(pair.getKey().toString(), -225, 20, drawPaintText);
+            canvas.rotate(90.0f);
+            canvas.translate(-x, -y);
             i++;
             if (i >= numXPoints) {
                 break;
@@ -300,10 +312,10 @@ public class BeaconsGraphicalView extends View {
         }
 
         int value = Math.abs(animationMarker);
-        x = targetXOffset + (value * xScale);
+        x = targetXOffset + (value);
         y = 20; //targetYOffset + ((numYPoints - 1) * yStep) + 20;
         //Log.i(TAG, pair.getKey() + " = " + pair.getValue());
-        canvas.drawCircle(x, y, 10, drawPaintBreadcrumbs);
+        canvas.drawCircle(x, y, 5, drawPaintTargets);
     }
 
 //    private void logToDisplay(final String line) {
