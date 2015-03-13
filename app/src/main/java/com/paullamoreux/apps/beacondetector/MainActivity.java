@@ -12,6 +12,7 @@ import android.bluetooth.le.ScanResult;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.PowerManager;
 import android.os.RemoteException;
 import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBarActivity;
@@ -51,6 +52,7 @@ public class MainActivity extends ActionBarActivity implements BeaconConsumer {
     private ArrayList<ScanResult> results;
     private ResultAdapter aResults;
 
+    protected PowerManager.WakeLock mWakeLock;
 
     BluetoothAdapter bleAdapter;
     BluetoothLeScanner scanner;
@@ -126,6 +128,12 @@ public class MainActivity extends ActionBarActivity implements BeaconConsumer {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        /* This code together with the one in onDestroy()
+         * will make the screen be always on until this Activity gets destroyed. */
+        final PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        this.mWakeLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "My Tag");
+        this.mWakeLock.acquire();
 
         boolean bLollipop = false;
 
@@ -209,7 +217,10 @@ public class MainActivity extends ActionBarActivity implements BeaconConsumer {
 
     @Override
     protected void onDestroy() {
+        this.mWakeLock.release();
+
         super.onDestroy();
+
         if (beaconManager != null) {
             beaconManager.unbind(this);
         }
